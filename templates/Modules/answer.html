@@ -1,0 +1,22 @@
+        <div class = "question-frame">
+          <a href = "#">
+            <img class = "avatar" src = "/static/img/avatar.jpg">
+          </a>
+          <p id = "main-question-text">{{answer.text}}</p>
+
+
+         <div class="panel-body" style = "clear: left">
+            <div class = "col-sm-3"> 
+              <span>
+                  <span class = "btn btn-default btn-like glyphicon glyphicon-hand-up"></span>
+                  <span><a href="#">{{answer.likes}}</a></span>
+                  <span class = "btn btn-default glyphicon glyphicon-hand-down"></span>
+              </span>
+            </div>
+            <div class=" col-sm-offset-3 col-sm-3">
+              <div class="checkbox">
+                <label><input type="checkbox"> Correct</label>
+              </div>
+            </div>
+          </div>
+        </div>

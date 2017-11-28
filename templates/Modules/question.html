@@ -1,0 +1,35 @@
+          <a href = "base.html">
+            <img class = "main-question-avatar" src = "/static/img/avatar.jpg">
+          </a>
+          <a href={{question.get_url}}>
+            <h3 style = "margin-top: 0px; text-align: center;"> {{question.title}}</h3>
+          </a>
+          <p id = "main-question-text">{{question.text}}</p>
+
+
+         <div class="panel-body" style = "clear: left">
+            <div class = "col-sm-3"> 
+              <span>
+                  <span class = "btn btn-default btn-like glyphicon glyphicon-hand-up"></span>
+                  <span><a href="#">{{question.likes}}</a></span>
+                  <span class = "btn btn-default glyphicon glyphicon-hand-down"></span>
+              </span>
+            </div>            
+            <div class="col-sm-offset-2 col-sm-4">
+             Tags:
+                  {%for tag in question.tags.all %}
+                  <a href="{{ tag.get_url }}">{{tag.title}}</a>
+                  {% endfor %}
+            </div>
+          </div>
+          <div class = "draw-line"></div>
+          {%block content%}
+          {%endblock%}
+          <div class = "draw-line" style = "margin-top: 20px; margin-bottom: 20px;">
+        </div>
+
+        <div class="form-group" style="margin-right: -25px;">
+          <div class="col-sm-12 answer-area">
+              <textarea class="form-control" rows="4" id="comment" placeholder="Enter you answer here" style="width: 100%; max-height: 200px;"></textarea>
+          </div>
+        </div>

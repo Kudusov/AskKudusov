@@ -1,0 +1,93 @@
+      <h3>Registration</h3>
+        <form class="form-horizontal">
+
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="login" style="text-align: left">Login</label>
+            <div class="col-sm-5">
+              <input class="form-control" placeholder="Enter login" style = "max-width: 300px" required>
+            </div>
+            {% if  login_correct %}
+             <label class="control-label col-sm-1 email-correct" >  &#10003;</label>
+            {% else %}
+              <label class="control-label col-sm-1 email-incorrect" >  &#10007;</label>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="email" style = "text-align: left">Email</label>
+            <div class="col-sm-5"> 
+              <input type="email" class="form-control" id="email" placeholder="Enter email" style="max-width: 300px;" required>
+            </div>
+            {% if  email_correct %}
+             <label class="control-label col-sm-1 email-correct" >  &#10003;</label>
+            {% else %}
+              <label class="control-label col-sm-1 email-incorrect" >  &#10007;</label>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-sm-3" style = "text-align: left">Nicknane:</label>
+            <div class="col-sm-5"> 
+              <input class="form-control" placeholder="Enter nickname" style="max-width: 300px;">
+            </div>
+            {% if  nickname_correct %}
+             <label class="control-label col-sm-1 email-correct" >  &#10003;</label>
+            {% else %}
+              <label class="control-label col-sm-1 email-incorrect" >  &#10007;</label>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="pwd" style = "text-align: left">Password:</label>
+            <div class="col-sm-5"> 
+              <input type="password" class="form-control" id="pwd" placeholder="Enter password" style="max-width: 300px;" required>
+            </div>
+            {% if  pwd_correct %}
+             <label class="control-label col-sm-1 email-correct" >  &#10003;</label>
+            {% else %}
+              <label class="control-label col-sm-1 email-incorrect" >  &#10007;</label>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="pwd" style = "text-align: left">Repeat Password:</label>
+            <div class="col-sm-5"> 
+              <input type="password" class="form-control" id="confirm password" placeholder="Enter password" style="max-width: 300px;" required>
+            </div>
+            {% if  conf_pwd_correct %}
+             <label class="control-label col-sm-1 email-correct" >  &#10003;</label>
+            {% else %}
+              <label class="control-label col-sm-1 email-incorrect" >  &#10007;</label>
+            {% endif %}
+          </div>
+
+          <div class = "form-group">
+            <label class="control-label col-sm-3" style = "text-align: left;">Upload Avatar</label>
+            <div class = "col-sm-5" style="max-width: 325px">
+              <div class="input-group image-preview">
+                <input type="text" class="form-control image-preview-filename" disabled="disabled"> <!-- don't give a name === doesn't send on POST/GET -->
+                <span class="input-group-btn">
+                    <!-- image-preview-clear button -->
+                    <button type="button" class="btn btn-default image-preview-clear" style="display:none;">
+                        <span class="glyphicon glyphicon-remove"></span> Clear
+                    </button>
+                    <!-- image-preview-input -->
+                    <div class="btn btn-default image-preview-input">
+                        <span class="glyphicon glyphicon-folder-open"></span>
+                        <span class="image-preview-input-title">Browse</span>
+                        <input type="file" accept="image/png, image/jpeg, image/gif" name="input-file-preview"/> <!-- rename it -->
+                    </div>
+                </span>
+            </div><!-- /input-group image-preview [TO HERE]--> 
+            </div>
+          </div>
+
+ 
+
+          <div class="form-group"> 
+            <div class="col-sm-offset-3 col-sm-9">
+              <button type="submit" class="btn btn-succes" style = "width:  120px">Save</button>
+            </div>
+          </div>
+
+        </form>

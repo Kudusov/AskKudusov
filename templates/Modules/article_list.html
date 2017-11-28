@@ -1,0 +1,7 @@
+<h3> {{ header }} </h3>
+
+{% block content %}
+	{% for question in questions %}
+	 	{% include "Modules/article.html" %}
+	{% endfor %}
+{% endblock %}
