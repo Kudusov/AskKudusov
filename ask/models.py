@@ -126,4 +126,25 @@ class AnswerLike(models.Model):
 
     objects = AnswerLikeManager()
 
+
+class AnswerPoll(models.Model):
+    title = models.CharField(max_length=30)
+    text = models.TextField()
+    author = models.ForeignKey(Profile)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def get_url(self):
+        return '/poll/{poll_id}'.format(poll_id=self.id)
+
+
+class Poll(models.Model):
+    answer_poll = models.ForeignKey(AnswerPoll)
+    answer = models.CharField(max_length=30)
+
+
+class PollVariant(models.Model):
+    poll = models.ForeignKey(Poll)
+    text = models.CharField(max_length=30)
+
+
 # Create your models here.

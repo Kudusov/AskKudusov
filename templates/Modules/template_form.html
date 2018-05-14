@@ -1,0 +1,19 @@
+{% for e in form.non_field_errors %}
+    <div class="alert alert-danger">{{ e }}</div>
+{% endfor %}
+
+<form method="POST">
+    {% csrf_token %}
+    {% for f in form.visible_fields %}
+        <div class="form-group">
+            <label for="{{ f.name }}">{{ f.label }}</label>
+            {{ f }}
+        </div>
+    {% endfor %}
+    {% for f in form.hidden_fields %}
+        {{ f }}
+    {% endfor %}
+    <div class="form-actions ">
+        <button type="submit" class="btn btn-success col-xs-offset-4 col-sm-offset-5 col-xs-4">Submit</button>
+    </div>
+</form>

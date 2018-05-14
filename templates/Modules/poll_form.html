@@ -1,5 +1,4 @@
 
-        <h3>Log In</h3>
 {#        <div class = "col-sm-2"></div>#}
         {% for e in form.non_field_errors %}
             <div class="alert alert-danger">{{ e }}</div>
@@ -8,7 +7,8 @@
         {% csrf_token %}
             {% for f in form.visible_fields %}
                 <div class="form-group">
-                <label class="control-label col-sm-2" style="text-align: left"> {{f.label}} </label>
+                <p id = "main-question-text">{{f.label}}</p>
+{#                <label class="control-label col-sm-2" style="text-align: left"> {{f.label}} </label>#}
                 <div class="col-sm-4">
                     {{ f }}
 {#                <input type="email" class="form-control"  style = "max-width: 250px">#}
@@ -42,7 +42,8 @@
 {#          </div>#}
           <div class="form-actions">
             <div class="col-sm-offset-2 col-sm-10">
-              <button type="submit" class="btn btn-succes" style = "width:  120px">Log in</button>
+              <button type="submit" class="btn btn-succes" style = "width:  120px">Answer</button>
             </div>
           </div>
         </form>
+

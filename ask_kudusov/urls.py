@@ -22,13 +22,16 @@ from ask import views
 urlpatterns = [
     # url(r'^/?', foo),
     url(r'^ask/', views.ask, name='ask'),
-    url(r'^login', views.login, name='login'),
+    url(r'^askpoll/', views.poll, name='poll'),
+    url(r'^login/', views.login, name='login'),
+    url(r'^logout/?', views.logout, name='logout'),
     url(r'^signup', views.signup, name='signup'),
     url(r'^$', views.index, name='index'),
     url(r'^hot/', views.hot, name='hot'),
     url(r'^tag/python/', views.tag_python, name='tag_python'),
     url(r'^tag/(?P<tag_name>[A-Za-z0-9+-]+)/', views.tag_python, name='tag_python'),
     url(r'^question/(?P<question_id>\d+)/', views.single_question, name='single_question'),
+    url(r'^poll/(?P<poll_id>\d+)/', views.single_poll, name='single_poll'),
     # url(r'ask/', include('ask.urls')),
 
     url(r'^admin/', admin.site.urls),

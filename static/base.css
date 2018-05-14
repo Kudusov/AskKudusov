@@ -73,10 +73,10 @@ h3.navbar-text{
   float: left;
 /*  width: 80px;
   height: 100px;*/
-  width: 15%;
+  width: 5%;
   /*height: 10%;*/
-  max-width: 150px;
-  max-height: 150px;
+  max-width: 25px;
+  max-height: 25px;
 
   margin-right: 20px;
 }
@@ -97,8 +97,8 @@ h3.navbar-text{
 /*  width: 80px;
   height: 100px;*/
   width:80%;
-  max-width: 80px;
-  max-height: 150px;
+  max-width: 40px;
+  max-height: 75px;
   margin-left: 0px;
 }
 

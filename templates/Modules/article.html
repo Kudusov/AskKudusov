@@ -5,8 +5,9 @@
           <a href="{{ question.get_url }}">
             <h3 style = "margin-top: 0px; text-align: center;"> {{ question.title }}</h3>
           </a>
-          <p class = "question-text">{{ question.text}} </p>
-          
+            {% for quest in question.text %}
+                <p class = "question-text">{{ quest }} </p>
+            {% endfor %}
 
           <div class="panel-body" style = "clear: left;  margin-left: -13px">
             <div class = "col-sm-3"> 
