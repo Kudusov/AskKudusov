@@ -1,0 +1,62 @@
+{% load index %}
+{#        <div class = "col-sm-2"></div>#}
+        {% for e in form.non_field_errors %}
+            <div class="alert alert-danger">{{ e }}</div>
+        {% endfor %}
+
+
+<div class="col-md-12">
+    {% for form in forms %}
+        {% for f in form %}
+            <form class="form-horizontal" method="POST" action="/poll/{{ request.path | catslug }}/?poll_id={{ f.name }}">
+            {% csrf_token %}
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-arrow-right"></span>{{ f.label }} <a href="http://www.jquery2dotnet.com" target="_blank"><span
+                            class="glyphicon glyphicon-new-window"></span></a>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-group" id="id_{{ f.name }}">
+                        {% for value, text in f.field.choices %}
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label for="id_{{ f.name }}_{{forloop.counter}}">
+                                    <input type="radio" name={{ f.name }} value={{ value }} required id="id_{{ f.name }}_{{forloop.counter}}">
+                                    {{ text }}
+                                </label>
+                            </div>
+                            <div class="progress" style="margin: 0">
+                                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                </div>
+                                <span class="progress-type">0</span>
+                                <span class="progress-completed">0</span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-sm">Vote</button>
+                    </div>
+                </div>
+            </div>
+            </form>
+            {% endfor %}
+        {% endfor %}
+        </div>
+            <form method="get" action="/poll_result/{{ request.path | catslug }}">
+                        <button type="submit" class="btn btn-succes" style = "width:  120px" >Result</button>
+                    </form>
+{#          <div class="form-actions">#}
+{#            <div class="col-sm-offset-2 col-sm-4">#}
+{#              <button type="submit" class="btn btn-succes" style = "width:  120px">Answer</button>#}
+{#            </div>#}
+{#          </div>#}
+{#        </form>#}
+{#    <form method="get" action="/poll_result/{{ request.path | catslug }}">#}
+{#        <button type="submit" class="btn btn-succes" style = "width:  120px" >Result</button>#}
+{#    </form>#}
+{#{% endfor %}#}

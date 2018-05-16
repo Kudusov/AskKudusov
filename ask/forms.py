@@ -41,9 +41,10 @@ class PollResultsForm(forms.Form):
 class SimplePollResultForm(forms.Form):
     def __init__(self, user=None, answer_poll_id=None, poll_id=None, *args, **kwargs):
         self.user = user
-        self.poll_id = answer_poll_id
-        answer = AnswerPoll.objects.get(id=answer_poll_id)
-        poll = Poll.objects.filter(id=poll_id).order_by('id')
+        self.poll_id = poll_id
+        self.answer_poll_id = answer_poll_id
+        print('simple poll = ', poll_id)
+        poll = Poll.objects.get(id=poll_id)
 
         super(SimplePollResultForm, self).__init__(*args, **kwargs)
 
@@ -57,7 +58,7 @@ class SimplePollResultForm(forms.Form):
 
     def save(self):
         answer_poll = AnswerPoll.objects.get(id=self.answer_poll_id)
-        poll = Poll.objects.filter(id=self.poll_id)
+        poll = Poll.objects.get(id=self.poll_id)
         user = Profile.objects.get(user=self.user)
 
         print(poll.id, ' -> ', self.cleaned_data[str(poll.id)])

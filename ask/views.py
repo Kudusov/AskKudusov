@@ -222,16 +222,23 @@ def single_question(request, question_id, **kwargs):
 
 @base_decorator
 def single_poll(request, answer_poll_id, **kwargs):
+
     if request.method == 'POST':
-        form = PollResultsForm(request.user, answer_poll_id, request.POST)
+        poll_id = int(request.GET['poll_id'])
+        print(poll_id)
+        form = SimplePollResultForm(request.user, answer_poll_id, poll_id, request.POST)
 
         if form.is_valid():
             return HttpResponseRedirect(form.save().get_url())
 
     else:
-        form = PollResultsForm(request.user, answer_poll_id)
+        answer = AnswerPoll.objects.get(id=answer_poll_id)
+        polls = Poll.objects.filter(answer_poll=answer).order_by('id')
+        forms = list()
+        for poll in polls:
+            forms.append(SimplePollResultForm(user=request.user, answer_poll_id=answer_poll_id, poll_id=poll.id))
 
-    kwargs['form'] = form
+        kwargs['forms'] = forms
     return render(request, 'single_poll.html', kwargs)
 
 
