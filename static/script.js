@@ -1,58 +1,53 @@
-$(document).on('click', '#close-preview', function(){ 
-    $('.image-preview').popover('hide');
-    // Hover befor close the preview
-    $('.image-preview').hover(
-        function () {
-           $('.image-preview').popover('show');
-        }, 
-         function () {
-           $('.image-preview').popover('hide');
-        }
-    );    
-});
+function like()
+{
+    var like = $(this);
+    var type = like.data('type');
+    var pk = 1;
 
+    // var pk = like.data('id');
+    var action = like.data('action');
+    // var dislike = like.next();
+
+
+    $.ajax({
+        url : "/api/" + type +"/" + pk + "/" + action + "/",
+        type : 'POST',
+        data : { 'obj' : pk },
+
+        success : function (json) {
+            like.find("[data-count='like']").text(json.like_count);
+            // dislike.find("[data-count='dislike']").text(json.dislike_count);
+        }
+    });
+
+    return false;
+}
+
+function dislike()
+{
+    var dislike = $(this);
+    var type = dislike.data('type');
+    var pk = dislike.data('id');
+    var action = dislike.data('action');
+    var like = dislike.prev();
+
+    $.ajax({
+        url : "/api/" + type +"/" + pk + "/" + action + "/",
+        type : 'POST',
+        data : { 'obj' : pk },
+
+        success : function (json) {
+            dislike.find("[data-count='dislike']").text(json.dislike_count);
+            like.find("[data-count='like']").text(json.like_count);
+        }
+    });
+
+    return false;
+}
+
+// Connecting Handlers
 $(function() {
-    // Create the close button
-    var closebtn = $('<button/>', {
-        type:"button",
-        text: 'x',
-        id: 'close-preview',
-        style: 'font-size: initial;',
-    });
-    closebtn.attr("class","close pull-right");
-    // Set the popover default content
-    $('.image-preview').popover({
-        trigger:'manual',
-        html:true,
-        title: "<strong>Preview</strong>"+$(closebtn)[0].outerHTML,
-        content: "There's no image",
-        placement:'bottom'
-    });
-    // Clear event
-    $('.image-preview-clear').click(function(){
-        $('.image-preview').attr("data-content","").popover('hide');
-        $('.image-preview-filename').val("");
-        $('.image-preview-clear').hide();
-        $('.image-preview-input input:file').val("");
-        $(".image-preview-input-title").text("Browse"); 
-    }); 
-    // Create the preview image
-    $(".image-preview-input input:file").change(function (){     
-        var img = $('<img/>', {
-            id: 'dynamic',
-            width:250,
-            height:200
-        });      
-        var file = this.files[0];
-        var reader = new FileReader();
-        // Set preview image into the popover data-content
-        reader.onload = function (e) {
-            $(".image-preview-input-title").text("Change");
-            $(".image-preview-clear").show();
-            $(".image-preview-filename").val(file.name);            
-            img.attr('src', e.target.result);
-            $(".image-preview").attr("data-content",$(img)[0].outerHTML).popover("show");
-        }        
-        reader.readAsDataURL(file);
-    });  
+    $('[data-action="like"]').click(like);
+    $('[data-action="dislike"]').click(dislike);
+    console.log("Hello");
 });

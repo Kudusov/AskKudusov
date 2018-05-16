@@ -8,23 +8,64 @@ import os
 
 
 class PollResultsForm(forms.Form):
-    def __init__(self, user=None, poll_id=None, *args, **kwargs):
+    def __init__(self, user=None, answer_poll_id=None, *args, **kwargs):
         self.user = user
-        self.poll_id = poll_id
-        answer = AnswerPoll.objects.get(id=poll_id)
+        self.poll_id = answer_poll_id
+        answer = AnswerPoll.objects.get(id=answer_poll_id)
         polls = Poll.objects.filter(answer_poll=answer).order_by('id')
 
         super(PollResultsForm, self).__init__(*args, **kwargs)
-        for i in range(len(polls)):
+        for poll in polls:
             choice = list()
-            poll_vars = PollVariant.objects.filter(poll=polls[i]).order_by('id')
+            poll_vars = PollVariant.objects.filter(poll=poll).order_by('id')
 
-            for j in range(len(poll_vars)):
-                choice.append([str(j), poll_vars[j].text])
+            for poll_var in poll_vars:
+                choice.append([str(poll_var.id), poll_var.text])
+            print('poll.id = ', poll.id)
+            self.fields[str(poll.id)] = forms.ChoiceField(
+                widget=forms.RadioSelect(), choices=choice, label=poll.answer)
 
-            self.fields[str(i)] = forms.ChoiceField(
-                widget=forms.RadioSelect(), choices=choice, label=polls[i].answer
-    )
+    def save(self):
+        answer_poll = AnswerPoll.objects.get(id=self.poll_id)
+        polls = Poll.objects.filter(answer_poll=answer_poll)
+        user = Profile.objects.get(user=self.user)
+        for poll in polls:
+            print(poll.id, ' -> ', self.cleaned_data[str(poll.id)])
+            print(poll.answer, ' -> ', PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)])).text)
+            poll_var = PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)]))
+            print(AnswerPollVote.objects.add_or_update(author=user, answer_poll=answer_poll, poll=poll, poll_variant=poll_var))
+
+        return answer_poll
+
+
+class SimplePollResultForm(forms.Form):
+    def __init__(self, user=None, answer_poll_id=None, poll_id=None, *args, **kwargs):
+        self.user = user
+        self.poll_id = answer_poll_id
+        answer = AnswerPoll.objects.get(id=answer_poll_id)
+        poll = Poll.objects.filter(id=poll_id).order_by('id')
+
+        super(SimplePollResultForm, self).__init__(*args, **kwargs)
+
+        choice = list()
+        poll_vars = PollVariant.objects.filter(poll=poll).order_by('id')
+        for poll_var in poll_vars:
+            choice.append([str(poll_var.id), poll_var.text])
+        print('poll.id = ', poll.id)
+        self.fields[str(poll.id)] = forms.ChoiceField(
+                widget=forms.RadioSelect(), choices=choice, label=poll.answer)
+
+    def save(self):
+        answer_poll = AnswerPoll.objects.get(id=self.answer_poll_id)
+        poll = Poll.objects.filter(id=self.poll_id)
+        user = Profile.objects.get(user=self.user)
+
+        print(poll.id, ' -> ', self.cleaned_data[str(poll.id)])
+        print(poll.answer, ' -> ', PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)])).text)
+        poll_var = PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)]))
+        print(AnswerPollVote.objects.add_or_update(author=user, answer_poll=answer_poll, poll=poll, poll_variant=poll_var))
+
+        return answer_poll
 
 
 class LoginForm(forms.Form):
@@ -215,9 +256,7 @@ class QuestionForm(forms.Form):
 
         question.title = self.cleaned_data['title']
         question.text = self.cleaned_data['text']
-        print(self.cleaned_data['text'])
-        question.author = Profile.objects.all()[0]
-        print(question.author)
+        question.author = Profile.objects.get(user=self.user)
         question.date = datetime.now()
         question.likes = 0
 
@@ -293,7 +332,7 @@ class PollForm(forms.Form):
 <answer> First answer </answer>
 <poll>poll1</poll>
 <poll>poll2</poll>
-<poll>poll3</poll>
+<poll>poll3</poll>s
 <answer> Second answer </answer>
 <poll>poll2-1</poll>
 <poll>poll2-2</poll>

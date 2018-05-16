@@ -11,9 +11,13 @@
          <div class="panel-body" style = "clear: left">
             <div class = "col-sm-3"> 
               <span>
-                  <span class = "btn btn-default btn-like glyphicon glyphicon-hand-up"></span>
+                  <a href="/likes?obj=question&id={{ question.id }}&type=like">
+                    <span class = "btn btn-default btn-like glyphicon glyphicon-hand-up"></span>
+                  </a>
                   <span><a href="#">{{question.likes}}</a></span>
-                  <span class = "btn btn-default glyphicon glyphicon-hand-down"></span>
+                  <a href="/likes?obj=question&id={{ question.id }}&type=dislike">
+                    <span class = "btn btn-default glyphicon glyphicon-hand-down"></span>
+                  </a>
               </span>
             </div>            
             <div class="col-sm-offset-2 col-sm-4">
@@ -26,8 +30,7 @@
           <div class = "draw-line"></div>
           {%block content%}
           {%endblock%}
-          <div class = "draw-line" style = "margin-top: 20px; margin-bottom: 20px;">
-        </div>
+          <div class = "draw-line" style = "margin-top: 20px; margin-bottom: 20px;"></div>
 
 {#        <div class="form-group" style="margin-right: -25px;">#}
 {#          <div class="col-sm-12 answer-area">#}

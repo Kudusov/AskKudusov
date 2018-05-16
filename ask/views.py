@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect
 from django.contrib import auth
 from ask.models import Tag, Question
-from ask.forms import LoginForm, SignupForm, QuestionForm, AnswerForm, PollForm, PollResultsForm
+from ask.forms import *
 from django.contrib.auth.decorators import login_required
 from faker import Faker
 import random
@@ -59,16 +59,6 @@ def base_decorator(func):
     return decorator
 
 
-# def tags_decorator(func):
-
-# 	def decorator(request, *args, **kwargs):
-# 		tags = [Tag() for _ in range(8)]
-
-# 		return func(request, tags=tags, *args, **kwargs)
-
-# 	return decorator
-
-
 def pagination(request, html_page, objects, object_name, objects_count, *args, **kwargs):
     paginator = Paginator(objects, objects_count)
     page = request.GET.get('page')
@@ -99,48 +89,32 @@ def pagination(request, html_page, objects, object_name, objects_count, *args, *
 
 @base_decorator
 def login(request, *args, **kwargs):
-    # kwargs['email_correct'] = get_rand_bool()
-    # kwargs['pwd_correct'] = get_rand_bool()
-    # return render(request, 'login.html', kwargs)
-
-    redirect = request.GET.get('continue', '/')
-
+    print(request.META.get('HTTP_REFERER'))
     if request.user.is_authenticated():
-        print("is_auth!!!")
-        return HttpResponseRedirect(redirect)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER') or '/')
 
     if request.method == 'POST':
         form = LoginForm(request.POST, request.FILES)
-
         if form.is_valid():
             auth.login(request, form.cleaned_data['user'])
-
             return HttpResponseRedirect('/')
 
     else:
         form = LoginForm()
 
     kwargs['form'] = form
-
     return render(request, 'login.html', kwargs)
 
 
 def logout(request, **kwargs):
-    print("logout")
-    redirect = request.GET.get('continue', '/')
     auth.logout(request)
-    return HttpResponseRedirect(redirect)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER') or '/')
 
 
 @base_decorator
 def signup(request, *args, **kwargs):
-    # kwargs['login_correct'] = get_rand_bool()
-    # kwargs['email_correct'] = get_rand_bool()
-    # kwargs['nickname_correct'] = get_rand_bool()
-    # kwargs['pwd_correct'] = get_rand_bool()
-    # kwargs['conf_pwd_correct'] = get_rand_bool()
     if request.user.is_authenticated():
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'), '/')
 
     if request.method == 'POST':
         form = SignupForm(request.POST, request.FILES)
@@ -178,7 +152,7 @@ def ask(request, *args, **kwargs):
 
     else:
         form = QuestionForm()
-
+    print(request.META.get('HTTP_REFERER'))
     kwargs['form'] = form
     return render(request, 'ask.html', kwargs)
 
@@ -203,6 +177,7 @@ def poll(request, *args, **kwargs):
 
 @base_decorator
 def index(request, *args, **kwargs):
+    print(request.META.get('HTTP_REFERER'))
     questions = Question.objects.get_new()
     for quest in questions:
         quest.text = quest.text.split('\n')
@@ -226,6 +201,7 @@ def tag_python(request, tag_name, *args, **kwargs):
 
 @base_decorator
 def single_question(request, question_id, **kwargs):
+    print(request.META.get('HTTP_REFERER'))
     if request.method == 'POST':
 
         form = AnswerForm(request.user, question_id, request.POST)
@@ -245,18 +221,62 @@ def single_question(request, question_id, **kwargs):
 
 
 @base_decorator
-def single_poll(request, poll_id, **kwargs):
+def single_poll(request, answer_poll_id, **kwargs):
     if request.method == 'POST':
-        form = PollResultsForm(request.user, poll_id, request.POST)
+        form = PollResultsForm(request.user, answer_poll_id, request.POST)
 
         if form.is_valid():
             return HttpResponseRedirect(form.save().get_url())
 
     else:
-        form = PollResultsForm(request.user, poll_id)
+        form = PollResultsForm(request.user, answer_poll_id)
 
     kwargs['form'] = form
     return render(request, 'single_poll.html', kwargs)
+
+
+@base_decorator
+def poll_results(request, poll_id, **kwargs):
+    answer_poll = AnswerPoll.objects.get(id = poll_id)
+    polls = Poll.objects.filter(answer_poll=answer_poll)
+    poll_vars = list()
+    result = list()
+    for poll in polls:
+        poll_var = PollVariant.objects.filter(poll=poll)
+        poll_vars.append(poll_var)
+        vote_nums = list()
+        for p in poll_var:
+            vote_nums.append(AnswerPollVote.objects.filter(poll=poll, poll_varint=p).count())
+            print(AnswerPollVote.objects.filter(poll=poll, poll_varint=p).count())
+        result.append(vote_nums)
+    print('result =', result)
+    zipped_poll_vars = list()
+    for i in range(len(poll_vars)):
+        zipped_poll_vars.append(zip(poll_vars[i], result[i]))
+
+    my_list = zip(polls, zipped_poll_vars)
+    kwargs['answer_poll'] = answer_poll
+    kwargs['polls'] = polls
+    kwargs['poll_vars'] = poll_vars
+    kwargs['my_list'] = my_list
+    # return render(request, 'test_poll.html', kwargs)
+    return render(request, 'poll_result.html', kwargs)
+
+
+@login_required
+def votes_view(request):
+    type = request.GET['type']
+    obj = request.GET['obj']
+    id = request.GET['id']
+    if obj == 'question':
+        QuestionLike.objects.add_or_update_with_id(user=request.user, question_id=id, type=type)
+
+    elif obj == 'answer':
+        AnswerLike.objects.add_or_update_with_id(user=request.user, answer_id=id, type=type)
+    else:
+        pass
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class AboutView(TemplateView):

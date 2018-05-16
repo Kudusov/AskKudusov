@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from ask import views
+from ask.models import *
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     # url(r'^/?', foo),
@@ -31,7 +33,9 @@ urlpatterns = [
     url(r'^tag/python/', views.tag_python, name='tag_python'),
     url(r'^tag/(?P<tag_name>[A-Za-z0-9+-]+)/', views.tag_python, name='tag_python'),
     url(r'^question/(?P<question_id>\d+)/', views.single_question, name='single_question'),
-    url(r'^poll/(?P<poll_id>\d+)/', views.single_poll, name='single_poll'),
+    url(r'^poll/(?P<answer_poll_id>\d+)/', views.single_poll, name='single_poll'),
+    url(r'^poll_result/(?P<poll_id>\d+)/', views.poll_results, name='poll_results'),
+    url(r'^likes/', views.votes_view, name='votes_view'),
     # url(r'ask/', include('ask.urls')),
 
     url(r'^admin/', admin.site.urls),

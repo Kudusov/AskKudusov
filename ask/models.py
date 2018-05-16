@@ -82,6 +82,15 @@ class QuestionLikeManager(models.Manager):
 
         return new
 
+    def add_or_update_with_id(self, user, question_id, type):
+        if type == 'dislike':
+            value = -1
+        else:
+            value = 1
+        author = Profile.objects.get(user=user)
+        question = Question.objects.get(id=question_id)
+        self.add_or_update(author=author, question=question, value=value)
+
 
 class QuestionLike(models.Model):
     question = models.ForeignKey(Question)
@@ -118,6 +127,15 @@ class AnswerLikeManager(models.Manager):
 
         return new
 
+    def add_or_update_with_id(self, user, answer_id, type):
+        if type == 'dislike':
+            value = -1
+        else:
+            value = 1
+        author = Profile.objects.get(user=user)
+        answer = Answer.objects.get(id=answer_id)
+        self.add_or_update(author=author, answer=answer, value=value)
+
 
 class AnswerLike(models.Model):
     answer = models.ForeignKey(Answer)
@@ -146,5 +164,18 @@ class PollVariant(models.Model):
     poll = models.ForeignKey(Poll)
     text = models.CharField(max_length=30)
 
+
+class AnswerPollVoteManager(models.Manager):
+    def add_or_update(self, author, answer_poll, poll, poll_variant):
+        obj, new = self.update_or_create(author=author, answer_poll=answer_poll, poll=poll, defaults={'poll_varint': poll_variant})
+        return new
+
+
+class AnswerPollVote(models.Model):
+    author = models.ForeignKey(Profile)
+    answer_poll = models.ForeignKey(AnswerPoll)
+    poll = models.ForeignKey(Poll)
+    poll_varint = models.ForeignKey(PollVariant)
+    objects = AnswerPollVoteManager()
 
 # Create your models here.

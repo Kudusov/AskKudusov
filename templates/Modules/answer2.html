@@ -1,0 +1,41 @@
+{% load index %}
+
+<div class="col-sm-1 " style=" float: left; padding-top: 20px; padding-right: 10px; padding-left: 0px;">
+    <a href = "base.html">
+        <img class = "avatar" src = "/static/img/avatar.jpg">
+    </a>
+</div>
+<div class="question-frame col-sm-11">
+
+    <div class="coll-sm-3">
+{#        <span class = "btn btn-default glyphicon glyphicon-user" style="height: 20px; width: 20px"></span>#}
+{#        Добавить ссылку на личную страничку#}
+        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+        <span><a href="#">{{ answer.author.user }}</a></span>
+        <span style="float: right"><a href="#">{{ answer.created_date }}</a></span>
+        <span class="glyphicon glyphicon-calendar" aria-hidden="true" style="float: right"></span>
+    </div>
+
+    <a href="{{ answer.get_url }}">
+        <h3 style = "margin-top: 0px; text-align: center;"> {{ answer.title }}</h3>
+    </a>
+{#    {% for ans in ans.text %}#}
+{#        <p class = "question-text" style="margin: 0px">{{ ans }} </p>#}
+{#    {% endfor %}#}
+    <p id = "main-question-text">{{answer.text}}</p>
+
+    <div class = "draw-line-2"></div>
+{#          <div class="panel-body" style = "clear: left;  margin-left: -13px">#}
+            <div class = "col-sm-3">
+              <span>
+                  <a href="/likes?obj=answer&id={{ answer.id }}&type=like">
+                    <span class = "btn btn-default btn-like glyphicon glyphicon-thumbs-up" aria-hidden="true" style="font-size: 8px"></span>
+                  </a>
+                  <span><a href="#">{{ answer.likes }}</a></span>
+                  <a href="/likes?obj=answer&id={{ answer.id }}&type=dislike">
+                  <span class = "btn btn-default glyphicon glyphicon-thumbs-down" aria-hidden="true" style="font-size: 8px"></span>
+                  </a>
+              </span>
+            </div>
+{#          </div>#}
+</div>

@@ -1,0 +1,67 @@
+<div class="col-sm-1 " style=" float: left; padding-top: 20px; padding-right: 10px; padding-left: 0px;">
+    <a href = "base.html">
+        <img class = "avatar" src = "/static/img/avatar.jpg">
+    </a>
+</div>
+<div class="question-frame-none-color col-sm-11">
+
+    <div class="coll-sm-3">
+{#        <span class = "btn btn-default glyphicon glyphicon-user" style="height: 20px; width: 20px"></span>#}
+{#        Добавить ссылку на личную страничку#}
+        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+        <span><a href="#">{{ question.author.user }}</a></span>
+        <span style="float: right"><a href="#">{{ question.created_date }}</a></span>
+        <span class="glyphicon glyphicon-calendar" aria-hidden="true" style="float: right"></span>
+    </div>
+
+    <a href="{{ question.get_url }}">
+        <h3 style = "margin-top: 0px; text-align: center;"> {{ question.title }}</h3>
+    </a>
+    {% for quest in question.text %}
+        <p class = "question-text" style="margin: 0px">{{ quest }} </p>
+    {% endfor %}
+    <div class = "draw-line-2"></div>
+{#          <div class="panel-body" style = "clear: left;  margin-left: -13px">#}
+            <div class = "col-sm-3">
+              <span>
+                  <a href="/likes?obj=question&id={{ question.id }}&type=like">
+                    <span class = "btn btn-default btn-like glyphicon glyphicon-thumbs-up" aria-hidden="true" style="font-size: 8px"></span>
+                  </a>
+                  <span><a href="#">{{ question.likes }}</a></span>
+                  <a href="/likes?obj=question&id={{ question.id }}&type=dislike">
+                    <span class = "btn btn-default glyphicon glyphicon-thumbs-down" aria-hidden="true" style="font-size: 8px"></span>
+                  </a>
+              </span>
+            </div>
+
+            <div class=" col-sm-9" style="text-align: right">
+                Tags:
+                  {% for tag in question.tags.all %}
+                    <a href="{{ tag.get_url }}">{{tag.title}} </a>
+                  {% endfor%}
+            </div>
+{#          </div>#}
+</div>
+<div class="col-xs-12">
+    <h2 style = "margin-top: 30px; margin-bottom: 10px; text-align: center;"> Answers({{ question.get_answers|length }})</h2>
+</div>
+{%block content%}
+{%endblock%}
+<div class = "draw-line col-sm-11" style = "margin-top: 20px; margin-bottom: 20px; float: right"></div>
+<form class="form-horizontal" method="POST">
+    {% csrf_token %}
+    {% for f in form.visible_fields %}
+        <div class="form-group">
+            <label class="control-label col-sm-2" style="text-align: left"> {{f.label}} </label>
+            <div class="col-sm-12">
+                {{ f }}
+            </div>
+
+        </div>
+    {%  endfor %}
+     <div class="form-actions">
+         <div class="col-sm-offset-5 col-sm-10">
+             <button type="submit" class="btn btn-succes" style = "width:  100px">Answer</button>
+         </div>
+     </div>
+</form>
