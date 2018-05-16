@@ -235,9 +235,23 @@ def single_poll(request, answer_poll_id, **kwargs):
         answer = AnswerPoll.objects.get(id=answer_poll_id)
         polls = Poll.objects.filter(answer_poll=answer).order_by('id')
         forms = list()
+        choices = list()
         for poll in polls:
-            forms.append(SimplePollResultForm(user=request.user, answer_poll_id=answer_poll_id, poll_id=poll.id))
 
+            choice = list()
+            poll_vars = PollVariant.objects.filter(poll=poll).order_by('id')
+            for poll_var in poll_vars:
+                # choice.append(AnswerPollVote.objects.filter(poll_varint=poll_var).count())
+                poll_var_votes = AnswerPollVote.objects.filter(poll_varint=poll_var).count()
+                all_votes = AnswerPollVote.objects.filter(poll=poll).count()
+                if all_votes != 0:
+                    all_votes = poll_var_votes / all_votes * 100
+                choice.append([poll_var_votes, all_votes])
+            choices.append(choice)
+            forms.append(SimplePollResultForm(user=request.user, answer_poll_id=answer_poll_id, poll_id=poll.id))
+        list_votes = [i*3 for i in range(3)]
+        print(choices)
+        kwargs['list_votes'] = choices
         kwargs['forms'] = forms
     return render(request, 'single_poll.html', kwargs)
 

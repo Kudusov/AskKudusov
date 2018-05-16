@@ -18,3 +18,8 @@ def catslug(line):
 def addstr(arg1, arg2):
     """concatenate arg1 & arg2"""
     return str(arg1) + str(arg2)
+
+
+@register.filter()
+def getbyindex(some_list, index):
+    return some_list[int(index)]
