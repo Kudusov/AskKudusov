@@ -6,6 +6,9 @@
 
 
 <div class="col-md-12">
+    <a href="{{ question.get_url }}">
+        <h3 style = "margin-top: 0px; text-align: center;"> {{ poll.title }}</h3>
+    </a>
     {% for form in forms %}
         {% with forloop.counter0 as xl %}
         {% for f in form %}
@@ -49,9 +52,9 @@
             {% endwith %}
         {% endfor %}
         </div>
-            <form method="get" action="/poll_result/{{ request.path | catslug }}>
+            <form method="get" action="/poll_result/{{ request.path | catslug }}">
                         <button type="submit" class="btn btn-succes" style = "width:  120px" >Result</button>
-                    </form>
+            </form>
 {#          <div class="form-actions">#}
 {#            <div class="col-sm-offset-2 col-sm-4">#}
 {#              <button type="submit" class="btn btn-succes" style = "width:  120px">Answer</button>#}

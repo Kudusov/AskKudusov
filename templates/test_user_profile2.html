@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+{% load index %}
+
+{% block content %}
+<div class="container">
+    <div class="row profile">
+        		<div class="col-md-3">
+			<div class="profile-sidebar">
+				<!-- SIDEBAR USERPIC -->
+				<div class="profile-userpic">
+{#					<img src="https://static.change.org/profile-img/default-user-profile.svg" class="img-responsive" alt="">#}
+                    <img src="/static/img/avatar.jpg" class="img-responsive" alt="">
+
+				</div>
+				<!-- END SIDEBAR USERPIC -->
+				<!-- SIDEBAR USER TITLE -->
+				<div class="profile-usertitle">
+					<div class="profile-usertitle-name">
+						{{ profile_user.user.username }}
+
+					</div>
+					<div class="profile-usertitle-job">
+						Developer
+					</div>
+				</div>
+				<!-- END SIDEBAR USER TITLE -->
+				<!-- SIDEBAR BUTTONS -->
+				<div class="profile-userbuttons">
+                {% if user.is_authenticated %}
+                    {% if is_auth_profile == False %}
+					    <button type="button" class="btn btn-success btn-sm">Follow</button>
+
+{#                        <form method="get" action="/chat/{{ request.path | catslug }}">#}
+{#                                <button type="submit" class="btn btn-danger btn-sm" style = "width:  120px" >Message</button>#}
+{#                        </form>#}
+                    <a href = "/chat/{{  request.path | catslug }}">
+					    <button type="button" class="btn btn-danger btn-sm">Message</button>
+                    </a>
+                    {% else %}
+                        <button type="button" class="btn btn-success btn-sm">Edit Profile</button>
+                    {% endif %}
+                {% endif %}
+				</div>
+				<!-- END SIDEBAR BUTTONS -->
+				<!-- SIDEBAR MENU -->
+				<div class="profile-usermenu">
+					<ul class="nav">
+						<li class="active">
+							<a href="#">
+							<i class="glyphicon glyphicon-home"></i>
+							Profile </a>
+						</li>
+                        {% if is_auth_profile == True %}
+						    <li>
+							    <a href="#">
+							    <i class="glyphicon glyphicon-user"></i>
+							    Account Settings </a>
+                            </li>
+                            <li>
+							    <a href="#">
+							    <i class="glyphicon glyphicon-envelope"></i>
+							    Messages </a>
+                            </li>
+                        {% endif %}
+                        <li>
+							<a href="#" target="_blank">
+							<i class="glyphicon glyphicon-eye-open"></i>
+							Followers: {{ followers }} </a>
+						</li>
+                        <li>
+							<a href="#" target="_blank">
+							<i class="glyphicon glyphicon-eye-open"></i>
+							Following: {{ followings }} </a>
+						</li>
+						<li>
+							<a href="#" target="_blank">
+							<i class="glyphicon glyphicon-question-sign"></i>
+							Answers: {{ answers }} </a>
+						</li>
+						<li>
+							<a href="#">
+							<i class="glyphicon glyphicon-ok"></i>
+							Polls: {{ polls }} </a>
+						</li>
+					</ul>
+				</div>
+				<!-- END MENU -->
+			</div>
+		</div>
+		<div class="col-md-9">
+            <h2> {{ profile_user.user.first_name }} {{ profile_user.user.last_name }}</h2>
+            <div>
+                <div class="col-md-4">
+
+                </div>
+                <div class="col-md-offset-8">
+                </div>
+            </div>
+		</div>
+	</div>
+</div>
+{% endblock %}

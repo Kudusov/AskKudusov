@@ -178,4 +178,17 @@ class AnswerPollVote(models.Model):
     poll_varint = models.ForeignKey(PollVariant)
     objects = AnswerPollVoteManager()
 
+
+class Conversation(models.Model):
+    sender = models.ForeignKey(Profile, related_name='sender')
+    recipient = models.ForeignKey(Profile, related_name='recipient')
+    last_msg = models.DateTimeField(default=timezone.now)
+
+
+class PersonalMessages(models.Model):
+    conversation = models.ForeignKey(Conversation)
+    text = models.TextField()
+    author = models.ForeignKey(Profile)
+    created_time = models.DateTimeField(default=timezone.now)
+
 # Create your models here.

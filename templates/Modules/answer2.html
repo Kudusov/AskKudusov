@@ -1,7 +1,7 @@
 {% load index %}
 
 <div class="col-sm-1 " style=" float: left; padding-top: 20px; padding-right: 10px; padding-left: 0px;">
-    <a href = "base.html">
+    <a href = "/profile/{{ answer.author.user.id }}">
         <img class = "avatar" src = "/static/img/avatar.jpg">
     </a>
 </div>
@@ -11,7 +11,7 @@
 {#        <span class = "btn btn-default glyphicon glyphicon-user" style="height: 20px; width: 20px"></span>#}
 {#        Добавить ссылку на личную страничку#}
         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-        <span><a href="#">{{ answer.author.user }}</a></span>
+        <span><a href="/profile/{{ answer.author.user.id }}">{{ answer.author.user }}</a></span>
         <span style="float: right"><a href="#">{{ answer.created_date }}</a></span>
         <span class="glyphicon glyphicon-calendar" aria-hidden="true" style="float: right"></span>
     </div>

@@ -24,6 +24,7 @@ from django.contrib.auth.decorators import login_required
 urlpatterns = [
     # url(r'^/?', foo),
     url(r'^ask/', views.ask, name='ask'),
+    url(r'^profile/(?P<user_id>\d+)/', views.profile_view, name='profile_view'),
     url(r'^askpoll/', views.poll, name='poll'),
     url(r'^login/', views.login, name='login'),
     url(r'^logout/?', views.logout, name='logout'),
@@ -35,6 +36,7 @@ urlpatterns = [
     url(r'^question/(?P<question_id>\d+)/', views.single_question, name='single_question'),
     # url(r'^poll/(?P<answer_poll_id>\d+)/(?P<poll_id>\d+)/', views.single_poll, name='single_poll'),
     url(r'^poll/(?P<answer_poll_id>\d+)/', views.single_poll, name='single_poll'),
+    url(r'^chat/(?P<pers_id>\d+)/', views.single_chat, name='single_chat'),
     url(r'^poll_result/(?P<poll_id>\d+)/', views.poll_results, name='poll_results'),
     url(r'^likes/', views.votes_view, name='votes_view'),
     # url(r'ask/', include('ask.urls')),

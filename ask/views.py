@@ -168,11 +168,39 @@ def poll(request, *args, **kwargs):
             # return HttpResponseRedirect('/')
             return HttpResponseRedirect(form.save().get_url())
 
+
     else:
         form = PollForm()
 
     kwargs['form'] = form
     return render(request, 'ask.html', kwargs)
+
+
+@base_decorator
+@login_required(redirect_field_name='/login')
+def single_chat(request, pers_id, **kwargs):
+    recipient = User.objects.get(id=pers_id)
+    if request.method == 'POST':
+        form = PersonameMessageForm(request.user, recipient, request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        form = PersonameMessageForm()
+
+    kwargs['form'] = form
+    sender = Profile.objects.get(user=request.user)
+    recipient = Profile.objects.get(user=recipient)
+
+    conversation = Conversation.objects.filter(sender=sender, recipient=recipient)
+    if conversation.count() == 0:
+        conversation = Conversation.objects.filter(sender=recipient, recipient=sender)
+
+    messages = PersonalMessages.objects.filter(conversation=conversation).order_by('created_time')
+    kwargs['messages'] = messages
+    kwargs['recipient'] = recipient
+    
+    return render(request, 'chat.html', kwargs)
 
 
 @base_decorator
@@ -195,6 +223,8 @@ def hot(request, *args, **kwargs):
 @base_decorator
 def tag_python(request, tag_name, *args, **kwargs):
     questions = Question.objects.get_with_tag(tag_name)
+    for quest in questions:
+        quest.text = quest.text.split('\n')
     kwargs['header'] = "Tag: " + tag_name
     return pagination(request, 'hot.html', questions, 'questions', 5, *args, **kwargs)
 
@@ -245,12 +275,14 @@ def single_poll(request, answer_poll_id, **kwargs):
                 poll_var_votes = AnswerPollVote.objects.filter(poll_varint=poll_var).count()
                 all_votes = AnswerPollVote.objects.filter(poll=poll).count()
                 if all_votes != 0:
-                    all_votes = poll_var_votes / all_votes * 100
+                    all_votes = round(poll_var_votes / all_votes * 100, 2)
+
                 choice.append([poll_var_votes, all_votes])
             choices.append(choice)
             forms.append(SimplePollResultForm(user=request.user, answer_poll_id=answer_poll_id, poll_id=poll.id))
         list_votes = [i*3 for i in range(3)]
         print(choices)
+        kwargs['poll'] = answer
         kwargs['list_votes'] = choices
         kwargs['forms'] = forms
     return render(request, 'single_poll.html', kwargs)
@@ -299,6 +331,30 @@ def votes_view(request):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+@base_decorator
+def profile_view(request, user_id, **kwargs):
+
+    profile_user = Profile.objects.get(user=User.objects.get(id=user_id))
+    kwargs['profile_user'] = profile_user
+    if request.user.is_authenticated:
+        auth_user = Profile.objects.get(user=request.user)
+        kwargs['is_auth_profile'] = profile_user == auth_user
+    else:
+        kwargs['is_auth_profile'] = False
+
+    kwargs['answers'] = Answer.objects.filter(author=profile_user).count()
+    kwargs['questions'] = Question.objects.filter(author=profile_user).count()
+    kwargs['polls'] = AnswerPoll.objects.filter(author=profile_user).count()
+    kwargs['followers'] = 0
+    kwargs['followings'] = 0
+
+    return render(request, 'test_user_profile2.html', kwargs)
+
+
+# @base_decorator
+# def single_chat(request, pers_id, **kwargs):
+#     return render(request, 'chat.html', kwargs)
 
 class AboutView(TemplateView):
     pass

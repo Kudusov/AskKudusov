@@ -305,6 +305,60 @@ class AnswerForm(forms.Form):
         return answer.question
 
 
+class PersonameMessageForm(forms.Form):
+    text = forms.CharField(
+        widget=forms.Textarea(
+            attrs={'class' : 'form-control', 'rows':'1', 'id':"comment", 'placeholder' : "Enter you answer here", 'style': 'width: 100%; max-height: 200px;'}
+        ),
+        label='Text',
+    )
+
+    def __init__(self, sender=None, recipient=None, *args, **kwargs):
+        self.sender = sender
+        self.recipient = recipient
+        forms.Form.__init__(self, *args, **kwargs)
+
+    def clean_text(self):
+        return self.cleaned_data['text']
+
+    def save(self):
+        print(self.cleaned_data['text'])
+        sender = Profile.objects.get(user=self.sender)
+        recipient = Profile.objects.get(user=self.recipient)
+        print(sender)
+        # print(recipient.user.username)
+        conversation = Conversation.objects.filter(sender=sender, recipient=recipient)
+        if conversation.count() == 0:
+            conversation = Conversation.objects.filter(sender=recipient, recipient=sender)
+
+        if conversation.count() == 0:
+            conversation = Conversation()
+            conversation.sender = sender
+            conversation.recipient = recipient
+            conversation.save()
+
+            message = PersonalMessages()
+            message.conversation = conversation
+            message.author = sender
+            message.text = self.cleaned_data['text']
+            message.save()
+
+        else:
+            message = PersonalMessages()
+            message.conversation = conversation[0]
+            message.author = sender
+            message.text = self.cleaned_data['text']
+            message.save()
+
+
+
+        # messages = PersonalMessages.objects.filter(author=sender)
+        # print(messages.count())
+        # for m in messages:
+        #     print(m.text)
+        #     print(m.author)
+
+
 class PollForm(forms.Form):
     title = forms.CharField(
         widget=forms.TextInput(
