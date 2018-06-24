@@ -58,7 +58,7 @@
 							    Account Settings </a>
                             </li>
                             <li>
-							    <a href="#">
+							    <a href='/msg_list/{{  request.path | catslug }}'>
 							    <i class="glyphicon glyphicon-envelope"></i>
 							    Messages </a>
                             </li>
@@ -73,11 +73,17 @@
 							<i class="glyphicon glyphicon-eye-open"></i>
 							Following: {{ followings }} </a>
 						</li>
+                        <li>
+							<a href="#" target="_blank">
+							<i class="glyphicon glyphicon-question-sign"></i>
+							Questions: {{ questions }} </a>
+						</li>
 						<li>
 							<a href="#" target="_blank">
 							<i class="glyphicon glyphicon-question-sign"></i>
 							Answers: {{ answers }} </a>
 						</li>
+
 						<li>
 							<a href="#">
 							<i class="glyphicon glyphicon-ok"></i>
@@ -90,13 +96,15 @@
 		</div>
 		<div class="col-md-9">
             <h2> {{ profile_user.user.first_name }} {{ profile_user.user.last_name }}</h2>
-            <div>
-                <div class="col-md-4">
-
-                </div>
-                <div class="col-md-offset-8">
-                </div>
-            </div>
+            {% block other_info %}
+            {% endblock %}
+{#            <div>#}
+{#                <div class="col-md-4">#}
+{#                #}
+{#                </div>#}
+{#                <div class="col-md-offset-8">#}
+{#                </div>#}
+{#            </div>#}
 		</div>
 	</div>
 </div>

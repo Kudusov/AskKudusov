@@ -4,8 +4,10 @@ from django.views.generic import TemplateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect
 from django.contrib import auth
-from ask.models import Tag, Question
+from ask.models import Tag
+from django.db.models import Q
 from ask.forms import *
+from ask.models import *
 from django.contrib.auth.decorators import login_required
 from faker import Faker
 import random
@@ -54,6 +56,7 @@ def base_decorator(func):
         # kwargs['name'] = name
         kwargs['best_members'] = best_members
         kwargs['popular_tags'] = popular_tags
+
         return func(request, *args, **kwargs)
 
     return decorator
@@ -164,11 +167,9 @@ def poll(request, *args, **kwargs):
         form = PollForm(request.user, request.POST)
 
         if form.is_valid():
-            form.save()
+            # form.save()
             # return HttpResponseRedirect('/')
             return HttpResponseRedirect(form.save().get_url())
-
-
     else:
         form = PollForm()
 
@@ -206,7 +207,8 @@ def single_chat(request, pers_id, **kwargs):
 @base_decorator
 def index(request, *args, **kwargs):
     print(request.META.get('HTTP_REFERER'))
-    questions = Question.objects.get_new()
+    # questions = Question.objects.get_new()
+    questions = UniversalQuestion.objects.get_new()
     for quest in questions:
         quest.text = quest.text.split('\n')
 
@@ -215,14 +217,14 @@ def index(request, *args, **kwargs):
 
 @base_decorator
 def hot(request, *args, **kwargs):
-    questions = Question.objects.get_hot()
+    questions = UniversalQuestion.objects.get_hot_question()
     kwargs['header'] = "Hot Asks"
     return pagination(request, 'hot.html', questions, 'questions', 5, *args, **kwargs)
 
 
 @base_decorator
 def tag_python(request, tag_name, *args, **kwargs):
-    questions = Question.objects.get_with_tag(tag_name)
+    questions = UniversalQuestion.objects.get_with_tag(tag_name)
     for quest in questions:
         quest.text = quest.text.split('\n')
     kwargs['header'] = "Tag: " + tag_name
@@ -243,10 +245,10 @@ def single_question(request, question_id, **kwargs):
         form = AnswerForm()
 
     kwargs['form'] = form
-    quest = Question.objects.get(id=question_id)
+    quest = UniversalQuestion.objects.get(id=question_id)
     quest.text = quest.text.split('\n')
     kwargs['question'] = quest
-    answers = quest.get_answers().all()
+    answers = UniversalQuestion.objects.get_hot_answer(question=quest)
     return pagination(request, 'single_question.html', answers, 'answers', 5, **kwargs)
 
 
@@ -262,7 +264,7 @@ def single_poll(request, answer_poll_id, **kwargs):
             return HttpResponseRedirect(form.save().get_url())
 
     else:
-        answer = AnswerPoll.objects.get(id=answer_poll_id)
+        answer = UniversalQuestion.objects.get(id=answer_poll_id)
         polls = Poll.objects.filter(answer_poll=answer).order_by('id')
         forms = list()
         choices = list()
@@ -290,28 +292,28 @@ def single_poll(request, answer_poll_id, **kwargs):
 
 @base_decorator
 def poll_results(request, poll_id, **kwargs):
-    answer_poll = AnswerPoll.objects.get(id = poll_id)
-    polls = Poll.objects.filter(answer_poll=answer_poll)
-    poll_vars = list()
-    result = list()
-    for poll in polls:
-        poll_var = PollVariant.objects.filter(poll=poll)
-        poll_vars.append(poll_var)
-        vote_nums = list()
-        for p in poll_var:
-            vote_nums.append(AnswerPollVote.objects.filter(poll=poll, poll_varint=p).count())
-            print(AnswerPollVote.objects.filter(poll=poll, poll_varint=p).count())
-        result.append(vote_nums)
-    print('result =', result)
-    zipped_poll_vars = list()
-    for i in range(len(poll_vars)):
-        zipped_poll_vars.append(zip(poll_vars[i], result[i]))
-
-    my_list = zip(polls, zipped_poll_vars)
-    kwargs['answer_poll'] = answer_poll
-    kwargs['polls'] = polls
-    kwargs['poll_vars'] = poll_vars
-    kwargs['my_list'] = my_list
+    # answer_poll = AnswerPoll.objects.get(id = poll_id)
+    # polls = Poll.objects.filter(answer_poll=answer_poll)
+    # poll_vars = list()
+    # result = list()
+    # for poll in polls:
+    #     poll_var = PollVariant.objects.filter(poll=poll)
+    #     poll_vars.append(poll_var)
+    #     vote_nums = list()
+    #     for p in poll_var:
+    #         vote_nums.append(AnswerPollVote.objects.filter(poll=poll, poll_varint=p).count())
+    #         print(AnswerPollVote.objects.filter(poll=poll, poll_varint=p).count())
+    #     result.append(vote_nums)
+    # print('result =', result)
+    # zipped_poll_vars = list()
+    # for i in range(len(poll_vars)):
+    #     zipped_poll_vars.append(zip(poll_vars[i], result[i]))
+    #
+    # my_list = zip(polls, zipped_poll_vars)
+    # kwargs['answer_poll'] = answer_poll
+    # kwargs['polls'] = polls
+    # kwargs['poll_vars'] = poll_vars
+    # kwargs['my_list'] = my_list
     # return render(request, 'test_poll.html', kwargs)
     return render(request, 'poll_result.html', kwargs)
 
@@ -322,10 +324,11 @@ def votes_view(request):
     obj = request.GET['obj']
     id = request.GET['id']
     if obj == 'question':
-        QuestionLike.objects.add_or_update_with_id(user=request.user, question_id=id, type=type)
+        UniversalQuestionLike.objects.add_or_update_with_id(user=request.user, question_id=id, type=type)
 
     elif obj == 'answer':
-        AnswerLike.objects.add_or_update_with_id(user=request.user, answer_id=id, type=type)
+        UniversalQuestionLike.objects.add_or_update_with_id(user=request.user, question_id=id, type=type)
+        # AnswerLike.objects.add_or_update_with_id(user=request.user, answer_id=id, type=type)
     else:
         pass
 
@@ -343,14 +346,70 @@ def profile_view(request, user_id, **kwargs):
     else:
         kwargs['is_auth_profile'] = False
 
-    kwargs['answers'] = Answer.objects.filter(author=profile_user).count()
-    kwargs['questions'] = Question.objects.filter(author=profile_user).count()
-    kwargs['polls'] = AnswerPoll.objects.filter(author=profile_user).count()
+    kwargs['answers'] = UniversalQuestion.objects.filter(author=profile_user, type='A').count()
+    kwargs['questions'] = UniversalQuestion.objects.filter(author=profile_user, type='Q').count()
+    kwargs['polls'] = UniversalQuestion.objects.filter(author=profile_user, type='P').count()
     kwargs['followers'] = 0
     kwargs['followings'] = 0
 
     return render(request, 'test_user_profile2.html', kwargs)
 
+
+@base_decorator
+@login_required(redirect_field_name='/login')
+def main_profile_view(request, **kwargs):
+
+    profile_user = Profile.objects.get(user=request.user)
+    kwargs['profile_user'] = profile_user
+    if request.user.is_authenticated:
+        auth_user = Profile.objects.get(user=request.user)
+        kwargs['is_auth_profile'] = profile_user == auth_user
+    else:
+        kwargs['is_auth_profile'] = False
+
+    kwargs['answers'] = UniversalQuestion.objects.filter(author=profile_user, type='A').count()
+    kwargs['questions'] = UniversalQuestion.objects.filter(author=profile_user, type='Q').count()
+    kwargs['polls'] = UniversalQuestion.objects.filter(author=profile_user, type='P').count()
+    kwargs['followers'] = 0
+    kwargs['followings'] = 0
+
+    return render(request, 'test_user_profile2.html', kwargs)
+
+@base_decorator
+def msg_list_view(request, user_id, **kwargs):
+    profile_user = Profile.objects.get(user=User.objects.get(id=user_id))
+    if profile_user.user != request.user:
+        return HttpResponseRedirect('/')
+
+    kwargs['profile_user'] = profile_user
+    if request.user.is_authenticated:
+        auth_user = Profile.objects.get(user=request.user)
+        kwargs['is_auth_profile'] = profile_user == auth_user
+    else:
+        kwargs['is_auth_profile'] = False
+
+    kwargs['answers'] = UniversalQuestion.objects.filter(author=profile_user, type='A').count()
+    kwargs['questions'] = UniversalQuestion.objects.filter(author=profile_user, type='Q').count()
+    kwargs['polls'] = UniversalQuestion.objects.filter(author=profile_user, type='P').count()
+    kwargs['followers'] = 0
+    kwargs['followings'] = 0
+
+    convers = Conversation.objects.filter(Q(sender=profile_user) | Q(recipient=profile_user))
+
+    messages = []
+    for conv in convers:
+        print(conv.id)
+        msg = PersonalMessages.objects.filter(conversation=conv).order_by('-created_time')
+        if msg.count() != 0:
+            messages.append(msg[0])
+    messages.sort(key=lambda x: x.created_time)
+    # messages.sort(key=lambda message: message.created_time)
+    for message in messages:
+        print(message.conversation.id)
+    kwargs['messages'] = messages
+    # dialogs = PersonalMessages.objects.filter(Q(conversation__sender=request.user) | Q(conversation__recipient=))
+
+    return render(request, 'message_list.html', kwargs)
 
 # @base_decorator
 # def single_chat(request, pers_id, **kwargs):

@@ -9,33 +9,35 @@ import os
 
 class PollResultsForm(forms.Form):
     def __init__(self, user=None, answer_poll_id=None, *args, **kwargs):
-        self.user = user
-        self.poll_id = answer_poll_id
-        answer = AnswerPoll.objects.get(id=answer_poll_id)
-        polls = Poll.objects.filter(answer_poll=answer).order_by('id')
-
-        super(PollResultsForm, self).__init__(*args, **kwargs)
-        for poll in polls:
-            choice = list()
-            poll_vars = PollVariant.objects.filter(poll=poll).order_by('id')
-
-            for poll_var in poll_vars:
-                choice.append([str(poll_var.id), poll_var.text])
-            print('poll.id = ', poll.id)
-            self.fields[str(poll.id)] = forms.ChoiceField(
-                widget=forms.RadioSelect(), choices=choice, label=poll.answer)
+        pass
+        # self.user = user
+        # self.poll_id = answer_poll_id
+        # answer = AnswerPoll.objects.get(id=answer_poll_id)
+        # polls = Poll.objects.filter(answer_poll=answer).order_by('id')
+        #
+        # super(PollResultsForm, self).__init__(*args, **kwargs)
+        # for poll in polls:
+        #     choice = list()
+        #     poll_vars = PollVariant.objects.filter(poll=poll).order_by('id')
+        #
+        #     for poll_var in poll_vars:
+        #         choice.append([str(poll_var.id), poll_var.text])
+        #     print('poll.id = ', poll.id)
+        #     self.fields[str(poll.id)] = forms.ChoiceField(
+        #         widget=forms.RadioSelect(), choices=choice, label=poll.answer)
 
     def save(self):
-        answer_poll = AnswerPoll.objects.get(id=self.poll_id)
-        polls = Poll.objects.filter(answer_poll=answer_poll)
-        user = Profile.objects.get(user=self.user)
-        for poll in polls:
-            print(poll.id, ' -> ', self.cleaned_data[str(poll.id)])
-            print(poll.answer, ' -> ', PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)])).text)
-            poll_var = PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)]))
-            print(AnswerPollVote.objects.add_or_update(author=user, answer_poll=answer_poll, poll=poll, poll_variant=poll_var))
-
-        return answer_poll
+        pass
+        # answer_poll = AnswerPoll.objects.get(id=self.poll_id)
+        # polls = Poll.objects.filter(answer_poll=answer_poll)
+        # user = Profile.objects.get(user=self.user)
+        # for poll in polls:
+        #     print(poll.id, ' -> ', self.cleaned_data[str(poll.id)])
+        #     print(poll.answer, ' -> ', PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)])).text)
+        #     poll_var = PollVariant.objects.get(id=int(self.cleaned_data[str(poll.id)]))
+        #     print(AnswerPollVote.objects.add_or_update(author=user, answer_poll=answer_poll, poll=poll, poll_variant=poll_var))
+        #
+        # return answer_poll
 
 
 class SimplePollResultForm(forms.Form):
@@ -57,7 +59,7 @@ class SimplePollResultForm(forms.Form):
                 widget=forms.RadioSelect(), choices=choice, label=poll.answer)
 
     def save(self):
-        answer_poll = AnswerPoll.objects.get(id=self.answer_poll_id)
+        answer_poll = UniversalQuestion.objects.get(id=self.answer_poll_id)
         poll = Poll.objects.get(id=self.poll_id)
         user = Profile.objects.get(user=self.user)
 
@@ -238,11 +240,7 @@ class QuestionForm(forms.Form):
         forms.Form.__init__(self, *args, **kwargs)
 
     def clean_title(self):
-        try:
-            question = Question.objects.get(title=self.cleaned_data['title'])
-            raise forms.ValidationError('Title is already in use!!!')
-        except Question.DoesNotExist:
-            return self.cleaned_data['title']
+        return self.cleaned_data['title']
 
     def clean_tags(self):
         if 'tags' in self.cleaned_data:
@@ -253,12 +251,14 @@ class QuestionForm(forms.Form):
             return self.cleaned_data['tags']
 
     def save(self):
-        question = Question()
+        question = UniversalQuestion()
 
         question.title = self.cleaned_data['title']
         question.text = self.cleaned_data['text']
         question.author = Profile.objects.get(user=self.user)
         question.date = datetime.now()
+        question.parent = None
+        question.type = 'Q'
         question.likes = 0
 
         question.save()
@@ -297,12 +297,13 @@ class AnswerForm(forms.Form):
         return self.cleaned_data['text']
 
     def save(self):
-        answer = Answer()
+        answer = UniversalQuestion()
         answer.text = self.cleaned_data['text']
-        answer.question = Question.objects.get(id=self.question_id)
+        answer.parent = UniversalQuestion.objects.get(id=self.question_id)
         answer.author = Profile.objects.get(user=self.user)
+        answer.type = 'A'
         answer.save()
-        return answer.question
+        return answer.parent
 
 
 class PersonameMessageForm(forms.Form):
@@ -349,8 +350,6 @@ class PersonameMessageForm(forms.Form):
             message.author = sender
             message.text = self.cleaned_data['text']
             message.save()
-
-
 
         # messages = PersonalMessages.objects.filter(author=sender)
         # print(messages.count())
@@ -436,15 +435,17 @@ class PollForm(forms.Form):
         poll_text = self.get_text()
         titles, polls = self.get_polls()
 
-        answer = AnswerPoll()
+        answer = UniversalQuestion()
         answer.title = self.cleaned_data['title']
         answer.text = poll_text
         answer.author = Profile.objects.get(user=self.user)
+        answer.type = 'P'
+        answer.parent = None
         answer.save()
 
         for i in range(len(titles)):
             poll = Poll()
-            poll.answer_poll = AnswerPoll.objects.get(id=answer.id)
+            poll.answer_poll = UniversalQuestion.objects.get(id=answer.id)
             poll.answer = titles[i]
             poll.save()
             for j in range(len(polls[i])):

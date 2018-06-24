@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from ask.models import Question, Tag
+from ask.models import Tag, UniversalQuestion
 from ask.models import Profile
 from faker import Faker
 from random import choice, randint
@@ -18,16 +18,28 @@ class Command(BaseCommand):
         added = 0
         tags = Tag.objects.all()
 
+        # for i in range(count):
+        #     question = Question()
+        #     question.title = fake.sentence(nb_words=3)
+        #     question.text = fake.text(randint(300, 600))
+        #     question.author = choice(users)
+        #     question.date = fake.date()
+        #     question.save()
+        #     added += 1
+
         for i in range(count):
-            question = Question()
+            question = UniversalQuestion()
+
             question.title = fake.sentence(nb_words=3)
             question.text = fake.text(randint(300, 600))
             question.author = choice(users)
             question.date = fake.date()
+            question.type = 'Q'
+            question.parent = None
             question.save()
             added += 1
 
-        for quest in Question.objects.all():
+        for quest in UniversalQuestion.objects.all():
             if len(quest.tags.all()) < 2:
                 for i in range(2 - len(quest.tags.all())):
                     t = choice(tags)

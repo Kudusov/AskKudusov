@@ -35,14 +35,17 @@
                   </a>
               </span>
             </div>
-            <div class=" col-sm-3" style="text-align: right">
-                <a href="{{ question.get_url }}">Answer ({{question.get_answers|length}})</a>
-            </div>
-            <div class=" col-sm-6" style="text-align: right">
-                Tags:
-                  {% for tag in question.tags.all %}
-                    <a href="{{ tag.get_url }}">{{tag.title}} </a>
-                  {% endfor%}
-            </div>
+            {% if question.type == 'Q' %}
+                <div class=" col-sm-3" style="text-align: right">
+                    <a href="{{ question.get_url }}">Answer ({{question.get_answers|length}})</a>
+                </div>
+
+                <div class=" col-sm-6" style="text-align: right">
+                    Tags:
+                    {% for tag in question.tags.all %}
+                        <a href="{{ tag.get_url }}">{{tag.title}} </a>
+                    {% endfor%}
+                </div>
+            {% endif %}
 {#          </div>#}
 </div>
