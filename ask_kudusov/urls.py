@@ -25,7 +25,7 @@ urlpatterns = [
     # url(r'^/?', foo),
     url(r'^ask/', views.ask, name='ask'),
     url(r'^profile/(?P<user_id>\d+)/', views.profile_view, name='profile_view'),
-    url(r'^me/', views.main_profile_view, name='main_profile_view'),
+    url(r'^me/', views.main_profile, name='main_profile'),
     url(r'^msg_list/(?P<user_id>\d+)/', views.msg_list_view, name='msg_list_view'),
     url(r'^askpoll/', views.poll, name='poll'),
     url(r'^login/', views.login, name='login'),

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from ask.models import Question, QuestionLike, Answer, AnswerLike
+from ask.models import UniversalQuestion, UniversalQuestionLike
 from ask.models import Profile
 from random import choice
 
@@ -15,24 +15,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         count_questions = int(options['number-questions'])
-        count_answers = int(options['number-answers'])
+        # count_answers = int(options['number-answers'])
         users = Profile.objects.all()[1:]
-        questions = Question.objects.all()
+        questions = UniversalQuestion.objects.all()
         added = 0
 
         for question in questions:
             for i in range(count_questions):
-                QuestionLike.objects.add_or_update(author=choice(users), question=question, value=choice([1, -1]))
+                UniversalQuestionLike.objects.add_or_update(author=choice(users), question=question, value=choice([1, -1]))
                 added += 1
 
         print(added, " Likes for question is added")
 
-        added = 0
-        answers = Answer.objects.all()
-
-        for answer in answers:
-            for i in range(count_answers):
-                AnswerLike.objects.add_or_update(author=choice(users), answer=answer, value=choice([1, -1]))
-                added += 1
-
-        print(added, " Likes for answers is added")
+        # added = 0
+        # answers = Uni.objects.all()
+        #
+        # for answer in answers:
+        #     for i in range(count_answers):
+        #         UniversalQuestionLikes.objects.add_or_update(author=choice(users), answer=answer, value=choice([1, -1]))
+        #         added += 1
+        #
+        # print(added, " Likes for answers is added")

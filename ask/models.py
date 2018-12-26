@@ -10,7 +10,7 @@ from django.db.models import Count, Sum, Q
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to='uploads')
 
 
@@ -111,7 +111,7 @@ class UniversalQuestion(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     tags = models.ManyToManyField(Tag)
     likes = models.IntegerField(default=0)
-    parent = models.ForeignKey('self', null=True)
+    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     type = models.CharField(max_length=1, choices=TYPES)
     objects = UniversalQuestionManager()
 
@@ -184,10 +184,13 @@ class UniversalQuestionLikeManager(models.Manager):
 
 
 class UniversalQuestionLike(models.Model):
-    question = models.ForeignKey(UniversalQuestion)
-    author = models.ForeignKey(Profile)
+    question = models.ForeignKey(UniversalQuestion, on_delete=models.CASCADE)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     value = models.SmallIntegerField(default=1)
     objects = UniversalQuestionLikeManager()
+
+    def __str__(self):
+        return self.author.user.username + ' to ' + self.question.title
 
 
 # class Answer(models.Model):
@@ -246,12 +249,12 @@ class UniversalQuestionLike(models.Model):
 
 
 class Poll(models.Model):
-    answer_poll = models.ForeignKey(UniversalQuestion)
+    answer_poll = models.ForeignKey(UniversalQuestion, on_delete=models.CASCADE)
     answer = models.CharField(max_length=30)
 
 
 class PollVariant(models.Model):
-    poll = models.ForeignKey(Poll)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     text = models.CharField(max_length=30)
 
 
@@ -262,23 +265,23 @@ class AnswerPollVoteManager(models.Manager):
 
 
 class AnswerPollVote(models.Model):
-    author = models.ForeignKey(Profile)
-    answer_poll = models.ForeignKey(UniversalQuestion)
-    poll = models.ForeignKey(Poll)
-    poll_varint = models.ForeignKey(PollVariant)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    answer_poll = models.ForeignKey(UniversalQuestion, on_delete=models.CASCADE)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    poll_varint = models.ForeignKey(PollVariant, on_delete=models.CASCADE)
     objects = AnswerPollVoteManager()
 
 
 class Conversation(models.Model):
-    sender = models.ForeignKey(Profile, related_name='sender')
-    recipient = models.ForeignKey(Profile, related_name='recipient')
+    sender = models.ForeignKey(Profile, related_name='sender', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(Profile, related_name='recipient', on_delete=models.CASCADE)
     last_msg = models.DateTimeField(default=timezone.now)
 
 
 class PersonalMessages(models.Model):
-    conversation = models.ForeignKey(Conversation)
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
     text = models.TextField()
-    author = models.ForeignKey(Profile)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     created_time = models.DateTimeField(default=timezone.now)
 
 # Create your models here.

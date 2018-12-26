@@ -93,7 +93,7 @@ def pagination(request, html_page, objects, object_name, objects_count, *args, *
 @base_decorator
 def login(request, *args, **kwargs):
     print(request.META.get('HTTP_REFERER'))
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER') or '/')
 
     if request.method == 'POST':
@@ -116,7 +116,7 @@ def logout(request, **kwargs):
 
 @base_decorator
 def signup(request, *args, **kwargs):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'), '/')
 
     if request.method == 'POST':
@@ -135,13 +135,6 @@ def signup(request, *args, **kwargs):
     kwargs['form'] = form
     return render(request, 'signup.html', kwargs)
 
-    # return render(request, 'signup.html', {
-    #     'form': form,
-    #     'tags': kwargs['tags'],
-    # })
-
-    # return render(request, 'signup.html', kwargs)
-
 
 @base_decorator
 @login_required(redirect_field_name='/login')
@@ -151,6 +144,7 @@ def ask(request, *args, **kwargs):
         form = QuestionForm(request.user, request.POST)
 
         if form.is_valid():
+            print("clicked from ask")
             return HttpResponseRedirect(form.save().get_url())
 
     else:
@@ -169,6 +163,7 @@ def poll(request, *args, **kwargs):
         if form.is_valid():
             # form.save()
             # return HttpResponseRedirect('/')
+            print("clicked from poll")
             return HttpResponseRedirect(form.save().get_url())
     else:
         form = PollForm()
@@ -261,6 +256,7 @@ def single_poll(request, answer_poll_id, **kwargs):
         form = SimplePollResultForm(request.user, answer_poll_id, poll_id, request.POST)
 
         if form.is_valid():
+            print("clicked from ask")
             return HttpResponseRedirect(form.save().get_url())
 
     else:
@@ -269,7 +265,7 @@ def single_poll(request, answer_poll_id, **kwargs):
         forms = list()
         choices = list()
         for poll in polls:
-
+            print("poll in views = ", poll)
             choice = list()
             poll_vars = PollVariant.objects.filter(poll=poll).order_by('id')
             for poll_var in poll_vars:
@@ -282,8 +278,8 @@ def single_poll(request, answer_poll_id, **kwargs):
                 choice.append([poll_var_votes, all_votes])
             choices.append(choice)
             forms.append(SimplePollResultForm(user=request.user, answer_poll_id=answer_poll_id, poll_id=poll.id))
-        list_votes = [i*3 for i in range(3)]
-        print(choices)
+        # list_votes = [i*3 for i in range(3)]
+        # print(choices)
         kwargs['poll'] = answer
         kwargs['list_votes'] = choices
         kwargs['forms'] = forms
@@ -354,6 +350,13 @@ def profile_view(request, user_id, **kwargs):
 
     return render(request, 'test_user_profile2.html', kwargs)
 
+
+@base_decorator
+def main_profile(request, **kwargs):
+    user_profile = Profile.objects.get(user=request.user)
+    user_id = user_profile.user_id
+    print(user_id)
+    return HttpResponseRedirect('/profile/' + str(user_id))
 
 @base_decorator
 @login_required(redirect_field_name='/login')

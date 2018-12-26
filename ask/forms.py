@@ -432,6 +432,7 @@ class PollForm(forms.Form):
         return self.cleaned_data['text']
 
     def save(self):
+        print("save function poll")
         poll_text = self.get_text()
         titles, polls = self.get_polls()
 
@@ -441,17 +442,22 @@ class PollForm(forms.Form):
         answer.author = Profile.objects.get(user=self.user)
         answer.type = 'P'
         answer.parent = None
+        print("poll answer = ", answer.text)
         answer.save()
 
         for i in range(len(titles)):
             poll = Poll()
             poll.answer_poll = UniversalQuestion.objects.get(id=answer.id)
             poll.answer = titles[i]
+            print("poll = ", titles[i])
             poll.save()
             for j in range(len(polls[i])):
                 poll_var = PollVariant()
                 poll_var.poll = Poll.objects.get(id=poll.id)
                 poll_var.text = polls[i][j]
                 poll_var.save()
-
+        added_polls = Poll.objects.filter(answer_poll=answer)
+        print("added_polls = ", added_polls)
+        for a in added_polls:
+            print("a = ", a)
         return answer
